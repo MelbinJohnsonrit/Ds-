@@ -1,0 +1,182 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct node{
+	int data;
+	struct node * next;
+	struct node * pre;
+}node;
+
+node * head=NULL;
+int count=0;
+
+void insertAtBegining();
+void display();
+void insertAtEnd();
+void insertAtPos();
+void deleteFromBegining();
+void deleteFromEnd();
+void deleteFromPos();
+
+
+int main() {
+    int ch=1,ca;
+    while(ch != 0) {
+        printf("\n\nmenu\n");
+        printf("1.insert at begining\n");
+        printf("2.insert at end\n");
+        printf("3.insert at any position\n");
+        printf("4.delete from begining\n");
+        printf("5.delete from end\n");
+        printf("6.delete from any positon\n");
+        printf("7.display\n");
+        printf("0.exit\n\n");
+        printf("enter your choice\n");
+        scanf("%d",&ca);
+        switch(ca){
+                case 1:insertAtBegining();break;
+                case 2:insertAtEnd();break;
+                case 3:insertAtPos();break;
+                case 4:deleteFromBegining();break;
+                case 5:deleteFromEnd();break;
+                case 6:deleteFromPos();break;
+                case 7:display();break;
+                case 0:ch=0;break;
+        }
+    }
+}
+
+void insertAtBegining(){
+	node * newnode , * temp=head;
+	newnode=(struct node *)malloc(sizeof(struct node));
+	printf("\nEnter the data :");
+	scanf("%d",&newnode->data);
+	if(head==NULL){
+		head=newnode;
+		newnode->next=NULL;
+		newnode->pre=NULL;
+		printf("\nNode inserted..\n");
+	}else{
+		newnode->pre=NULL;
+		newnode->next=head;
+		head=newnode;
+		printf("\nNode inserted..\n");
+	}
+	++count;
+}
+
+void display(){
+        node * temp=head;
+        if(temp==NULL){
+                printf("Empty Linked list");
+        }else{
+                while(temp!=NULL){
+                        printf("%d  ",temp->data);
+                        temp=temp->next;
+                }
+        } 
+}
+
+void insertAtEnd(){
+	node * newnode , * temp=head;
+	newnode=(struct node *)malloc(sizeof(struct node));
+	printf("\nEnter the data :");
+	scanf("%d",&newnode->data);
+	if(head==NULL){
+		head=newnode;
+	}else{
+		while(temp->next!=NULL){
+			temp=temp->next;
+		}
+	newnode->pre=temp;
+	temp->next=newnode;
+	newnode->next=NULL;
+	printf("\nNode inserted..\n");
+	++count;
+	}
+}
+
+void insertAtPos(){
+	int pos;
+	node * newnode , * temp=head;
+	newnode=(struct node *)malloc(sizeof(struct node));
+	printf("Enter the position at which the data is to be inserted:");
+	scanf("%d",&pos);
+	if(head==NULL){
+		printf("\n!!! list is empty. !!! \n !!! so inserting at begining. !!!");
+		insertAtBegining();
+	}else if(pos==1){
+		insertAtBegining();
+	}else if(count+1==pos){
+		insertAtEnd();
+	}else if(pos>count+1){
+		printf("\n!!! Invalid Position. !!! \n !!! so inserting at end of the list. !!!");
+		insertAtEnd();
+	}else{
+		printf("\nEnter the data :");
+		scanf("%d",&newnode->data);
+		for(int i=2;i<pos;i++){
+			temp=temp->next;
+		}
+		newnode->pre=temp;
+		newnode->next=temp->next;
+		temp->next->pre=newnode;
+		temp->next=newnode;
+		printf("\nNode inserted..\n");
+	}
+	++count;
+}
+
+void deleteFromBegining(){
+	if(count==0){
+		printf("Empty linked list");
+	}else{
+		node * temp=head;
+		head=head->next;
+		free(temp);
+		printf("\nNode deleted ..\n");
+		--count;
+	}
+}
+
+void deleteFromEnd(){
+	node * temp=head;
+	if(count==0){
+		printf("Empty linked list");
+	}else{
+		while(temp->next!=NULL){
+			temp=temp->next;
+		}
+		temp->pre->next=NULL;
+		free(temp);
+		printf("\nNode deleted ..\n");
+		--count;
+	}
+}
+
+void deleteFromPos(){
+	node * temp=head, * ptr;
+	int pos;
+	printf("Enter the position at which the node has to be deleted:");
+	scanf("%d",&pos);
+	if(head==NULL){
+		printf("list is empty\n");
+	}else if(pos==1){
+		deleteFromBegining();
+	}else if(count==pos){
+		deleteFromEnd();
+	}else if(pos>count){
+		printf("invalid position");
+	}else{
+		for(int i=2;i<pos;i++){
+			temp=temp->next;
+		}
+		ptr=temp->next->next;
+		node *del=temp->next;
+
+		ptr->pre=temp;
+		free(del)
+		temp->next=ptr;
+		count--;
+	}
+}
