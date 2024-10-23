@@ -1,0 +1,148 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node *top = NULL;
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+struct node * createNode(int);
+
+void push();
+void pop();
+void display();
+void peek();
+void search();
+
+int main() {
+    int choice;
+    
+
+    do {
+
+    printf("\n\nSelect an operation to continue: \n1)push \n2)pop \n3)peek \n4)display \n5.search \n6)EXIT: ");
+    scanf("%d",&choice);
+
+    switch(choice) {
+        case 1: push(); break;
+        case 2: pop(); break;
+        case 3: peek(); break;
+        case 4: display(); break;
+	case 5: search(); break;
+        case 6: printf(".................\n\n"); exit(1);
+        default: printf("Invalid input");
+    }
+
+    } while(choice !=0);
+}
+
+struct node * createNode(int data) {
+
+    struct node *ptr = (struct node *)malloc(sizeof(struct node));
+
+    if(ptr == NULL){
+        printf("Unable to create node!");
+        exit(1);
+    }
+
+ptr->data = data; // Adding data to the node
+    ptr->next = NULL; // setting the link to NULL (since it's the top element)
+
+    if(top != NULL){
+        ptr->next = top; // setting the link of the next node 
+    }
+    top = ptr; //updating the postion of top
+
+    return top;
+}
+
+void push() {
+    int value;
+    printf("Enter the value to insert : ");
+    scanf("%d",&value);
+
+    top = createNode(value);
+
+    printf("%d is added to list\n",top->data);
+}
+
+void pop() {
+    if(top==NULL)
+        printf("List is empty");
+    else {
+        int value;
+        struct node *temp = top;
+
+        value = temp->data;
+        printf("%d was removed from the list\n",value);
+        top = temp->next;
+        free(temp);
+    }
+}
+
+void peek() {
+    if(top == NULL){
+        printf("List is empty!");
+    } else {
+        printf("the top element is %d:\n ",top->data);
+    }
+}
+
+void display() {
+    int count = 0;
+    if(top == NULL) {
+        printf("List is empty!");
+    } else {
+        struct node *ptr = top;
+        printf("The values are : ");
+        while(ptr != NULL) {
+            count++;
+            printf("Node %d: data = %d, address = %p\n",count,ptr->data,ptr->next);
+            ptr = ptr->next;
+        }
+    }
+
+    printf("\n");
+}
+
+
+//<!void search() {
+ //  int el;
+  // printf("enter value to search");
+//   scanf("%d",&el);
+  // if(top == NULL) {
+    //    printf("List is empty!");
+  //  } else {
+//	   struct node *ptr = top;
+  //    	   while(ptr != NULL){
+//	       if(el== ptr->data){
+//	   printf("element found");
+//	}
+//	else{
+//	   ptr=ptr->next;
+//	}
+  //}
+//}
+
+void search() {
+    int element, is_found = 0;
+    printf("Enter the element to be searched: "); 
+    scanf("%d",&element);
+
+    struct node *ptr = top;
+    while(ptr != NULL) {
+        if(ptr->data == element){
+            is_found = 1;
+            printf("\n%d is in the list\n",ptr->data);
+            break;
+        }else {
+            ptr = ptr->next;
+        }
+    }
+
+    if(is_found == 0)
+        printf("\nNO MATCH FOUND!!!\n");
+}
+
