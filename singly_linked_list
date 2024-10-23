@@ -1,0 +1,215 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node *head = NULL;
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+//struct node * createNode(int);
+
+void insertAtBegining();
+void display();
+void insertAtEnd();
+void insertAtPos();
+void deleteFromBegining();
+void deleteFromEnd();
+void deleteFromPos();
+
+int main() {
+    int ch=1,ca;
+    while(ch != 0) {
+	printf("\n\nmenu\n");
+	printf("1.insert at begining\n");
+	printf("2.insert at end\n");
+	printf("3.insert at any position\n");
+	printf("4.delete from begining\n");
+	printf("5.delete from end\n");
+	printf("6.delete from any positon\n");
+	printf("7.display\n");
+	printf("0.exit\n\n");
+	printf("enter your choice\n");
+	scanf("%d",&ca);
+	switch(ca){
+	 	case 1:insertAtBegining();break;
+		case 2:insertAtEnd();break;
+		case 3:insertAtPos();break;
+		case 4:deleteFromBegining();break;
+		case 5:deleteFromEnd();break;
+		case 6:deleteFromPos();break;
+		case 7:display();break;
+		case 0:ch=0;break;
+	}
+    }
+}
+
+void insertAtBegining(){
+	struct node *newnode;
+	newnode = (struct node*)malloc(sizeof(struct node));
+	printf("enter the value to insert\n");
+	scanf("%d",&newnode -> data);
+	newnode -> next = NULL;
+	if (head==NULL){
+		head = newnode;
+	}else{
+		newnode -> next=head;
+		head= newnode;
+	} 
+	printf("%d is inserted at the begining",newnode -> data);
+}
+
+void display() {
+    int count = 0;
+    if(head == NULL) {
+        printf("List is empty!");
+    } else {
+        struct node *ptr = head;
+        printf("The values are : ");
+        while(ptr != NULL) {
+            count++;
+            printf("Node %d: data = %d, address = %p\n",count,ptr->data,ptr->next);
+            ptr = ptr->next;
+        }
+    }
+
+}
+
+void insertAtEnd(){
+	struct node *newnode,*trav;
+	newnode = (struct node*)malloc(sizeof(struct node));
+        printf("enter the value to insert\n");
+        scanf("%d",&newnode -> data);
+        newnode -> next = NULL;
+        if (head==NULL){
+                head = newnode;
+	}else{
+		trav=head;
+		while(trav->next!=NULL){
+			trav=trav->next;
+		}
+		trav -> next=newnode;
+	}
+	printf("%d is inserted at the end",newnode -> data);
+}
+
+void insertAtPos(){
+	int pos,index=2;
+	//if(pos==1){
+          //      insertAtBegining();
+            //    return;
+        //}
+	struct node *newnode,*cur=head,*temp1;
+	newnode = (struct node*)malloc(sizeof(struct node));
+	printf("enter the positon\n");
+        scanf("%d",&pos);
+	if(pos==1){
+                insertAtBegining();
+		return;
+        }
+        printf("enter the value to insert\n");
+        scanf("%d",&newnode -> data);
+        newnode -> next = NULL;
+        if (head==NULL){
+                head = newnode;
+        }
+	while(cur->next != NULL) {
+        if(index == pos){
+            newnode->next = cur->next;
+            cur->next = newnode;
+            printf("%d was inserted into position %d",newnode->data,pos);
+            break;
+        }
+        index++;
+        cur = cur->next;
+    }
+
+    if(index > pos) printf("position is out of bounds. Please Try again!");
+//	for(i=1;i<pos-1;i++){
+//		temp = temp->next;
+//	}
+//	temp1= temp->next;
+//	newnode -> next = temp1;
+//	temp -> next= newnode;
+//	printf("%d is onserted at %d",newnode -> data ,pos);
+}
+
+void deleteFromBegining(){
+	if(head == NULL){
+		printf("list is empty");
+		return;
+	}
+	struct node *temp;
+	temp = head;
+	head = head -> next;
+	free(temp);
+	printf("first element is deleted\n");
+}
+
+void deleteFromEnd(){
+	if(head == NULL){
+                printf("list is empty\n");
+                return;
+        }
+	struct node *temp=NULL,*cur=head;
+	while(cur->next->next!=NULL){
+		cur=cur->next;
+	}
+	temp=cur->next;
+	cur->next=NULL;
+	free(temp);
+	printf("last element is deleted\n");
+}
+
+void deleteFromPos(){
+	int pos,i=1;
+	if(head == NULL){
+                printf("list is empty\n");
+                return;
+        }
+	if(pos ==1){
+		deleteFromBegining();
+		return;
+	}
+	struct node *temp=head,*dnode;
+	printf("enter the position to delete the element\n");
+        scanf("%d",&pos);
+	
+	while(i<pos-1){
+		temp=temp->next;
+		i++;
+	}
+	dnode=temp -> next;
+	temp->next =dnode->next;
+	dnode->next=NULL;
+	free(dnode);
+	printf("elemente is deleted at position %d is deleted",pos);
+}
+
+
+//void insertAtPosition(int value, int position) {
+  //  int index = 2;
+ //   node *newnode = createNode(value);
+
+  //  node *current = head;
+//   if(isListEmpty(false) || position <= 1){
+  //      newnode->next = head;
+    //    head = newnode;
+      //  printf("Inserting %d to position 1",newnode->data);
+       // return;
+ //   }
+
+   // while(current->next != NULL) {
+     //   if(index == position){
+       //     newnode->next = current->next;
+         //   current->next = newnode;
+           // printf("%d was inserted into position %d",newnode->data,position);
+           // break;
+       // }
+      //  index++;
+        //current = current->next;
+//    }
+
+  //  if(index > position) printf("position is out of bounds. Please Try again!");
+//}
