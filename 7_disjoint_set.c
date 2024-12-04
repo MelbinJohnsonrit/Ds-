@@ -10,81 +10,21 @@ struct node{
 static int countRoot=0;
 
 void makeSet(int elements[], int size);
-/*void makeSet(int x){
-    struct node *new=(struct node *)malloc(sizeof(struct node));
-    new->rep=new;
-    new->next=NULL;
-    new->data=x;
-    heads[countRoot]=new;
-    tails[countRoot++]=new;
-}*/
-
+//void makeSet(int x)
+void unionSets(int a,int b);
+int search(int x);
 struct node* find(int a){
     int i;
     struct node *tmp=(struct node *)malloc(sizeof(struct node));
     for(i=0;i<countRoot;i++){
     tmp=heads[i];
     while(tmp!=NULL){
-	if(tmp->data==a)
-	    return tmp->rep;
-	    tmp=tmp->next;
-	}
+        if(tmp->data==a)
+            return tmp->rep;
+            tmp=tmp->next;
+        }
    }
    return NULL;
-}
-
-void unionSets(int a,int b){
-    int i,pos,flag=0,j;
-    struct node *tail2=(struct node *)malloc(sizeof(struct node));
-    struct node *rep1=find(a);
-    struct node *rep2=find(b);
-    if(rep1==NULL||rep2==NULL){
-	printf("\nElement not present in the DS\n");
-	return;
-    }
-    if(rep1!=rep2){
-	for(j=0;j<countRoot;j++){
-	    if(heads[j]==rep2){
-		pos=j;
-		flag=1;
-		countRoot-=1;
-		tail2=tails[j];
-		for(i=pos;i<countRoot;i++){
-		    heads[i]=heads[i+1];
-		    tails[i]=tails[i+1];
-		}
-	    }
-	    if(flag==1)
-	    break;
-	}
-	for(j=0;j<countRoot;j++){
-	    if(heads[j]==rep1){
-		tails[j]->next=rep2;
-		tails[j]=tail2;
-		break;
-	    }
-	}
-	while(rep2!=NULL){
-	    rep2->rep=rep1;
-	    rep2=rep2->next;
-	}
-    }
-}
-
-int search(int x){
-    int i;
-    struct node *tmp=(struct node *)malloc(sizeof(struct node));
-    for(i=0;i<countRoot;i++){
-	tmp=heads[i];
-	if(heads[i]->data==x)
-	    return 1;
-	while(tmp!=NULL){
-	    if(tmp->data==x)
-		return 1;
-	    tmp=tmp->next;
-	}
-    }
-    return 0;
 }
 
 void main(){
@@ -98,37 +38,7 @@ void main(){
 	scanf("%d",&choice);
 
 	switch(choice){
-/*	    case 1:
-		//single element insertion
-		printf("\nEnter new element : ");
-		scanf("%d",&x);
-		if(search(x)==1)
-		    printf("\nElement already present in the disjoint set DS\n");
-		else
-		    makeSet(x);
-		    break;
-*/
-	    case 1:
-		//multiple element insertion
-		printf("\nEnter the number of elements in the new set: ");
-		scanf("%d", &numElements);
-		//int elements[numElements];
-		printf("Enter the elements: ");
-		for (int i = 0; i < numElements; i++) {
-			scanf("%d", &elements[i]);
-		}
-		//int duplicateFlag = 0;
-		for (int i = 0; i < numElements; i++) {
-			if (search(elements[i]) == 1) {
-				printf("\nElement %d already present in the disjoint set DS\n", elements[i]);
-				duplicateFlag = 1;
-			}
-		}
-		if (duplicateFlag == 0) {
-			makeSet(elements, numElements);
-		} break;
-
-/*	    case 1: 
+	    case 1: 
                 //multiple element insertion
                 printf("\nEnter the number of elements in the new set: ");
                 scanf("%d", &numElements);
@@ -136,18 +46,16 @@ void main(){
                 printf("Enter the elements: ");
                 for (int i = 0; i < numElements; i++) {
                         scanf("%d", &elements[i]);
-                }
-                int duplicateFlag = 0;
-                for (int i = 0; i < numElements; i++) {
-                        if (search(elements[i]) == 1) {
+			if (search(elements[i]) == 1) {
                                 printf("\nElement %d already present in the disjoint set DS\n", elements[i]);
-                                duplicateFlag = 1;
+				i--;
+				continue;
                         }
-                }
-                if (duplicateFlag == 0) {
+		}
+		if (duplicateFlag == 0) {
                         makeSet(elements, numElements);
                 } break;
-*/
+
 	    case 2:
  		printf("\n");
 		for(i=0;i<countRoot;i++){
@@ -215,4 +123,58 @@ void makeSet(int elements[], int size) {
     }
     
     tails[countRoot++] = current;
+}
+
+void unionSets(int a,int b){
+    int i,pos,flag=0,j;
+    struct node *tail2=(struct node *)malloc(sizeof(struct node));
+    struct node *rep1=find(a);
+    struct node *rep2=find(b);
+    if(rep1==NULL||rep2==NULL){
+        printf("\nElement not present in the DS\n");
+        return;
+    }
+    if(rep1!=rep2){
+        for(j=0;j<countRoot;j++){
+            if(heads[j]==rep2){
+                pos=j;
+                flag=1;
+                countRoot-=1;
+                tail2=tails[j];
+                for(i=pos;i<countRoot;i++){
+                    heads[i]=heads[i+1];
+                    tails[i]=tails[i+1];
+                }
+            }
+            if(flag==1)
+            break;
+        }
+        for(j=0;j<countRoot;j++){
+            if(heads[j]==rep1){
+                tails[j]->next=rep2;
+                tails[j]=tail2;
+                break;
+            }
+        }
+        while(rep2!=NULL){
+            rep2->rep=rep1;
+            rep2=rep2->next;
+        }
+    }
+}
+
+int search(int x){
+    int i;
+    struct node *tmp=(struct node *)malloc(sizeof(struct node));
+    for(i=0;i<countRoot;i++){
+        tmp=heads[i];
+        if(heads[i]->data==x)
+            return 1;
+        while(tmp!=NULL){
+            if(tmp->data==x)
+                return 1;
+            tmp=tmp->next;
+        }
+    }
+    return 0;
 }
