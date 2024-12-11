@@ -2,143 +2,137 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_SIZE 100 // Increased size for example
-
-struct Graph {
-    int V;
-    struct adj_list *array;
-};
-
-struct adj_list_node {
+typedef struct Node {
     int dest;
-    struct adj_list_node *next;
-};
+    struct Node* next;
+} Node;
 
-struct adj_list {
-    struct adj_list_node *head;
-};
+typedef struct Graph {
+    int V;
+    Node** adjList;
+    Node** revAdjList; // For transpose graph
+    bool* visited;
+} Graph;
 
-struct adj_list_node *new_adj_list_node(int dest) {
-    struct adj_list_node *newNode = (struct adj_list_node *)malloc(sizeof(struct adj_list_node));
+Node* createNode(int dest) {
+    Node* newNode = (Node*) malloc(sizeof(Node));
     newNode->dest = dest;
     newNode->next = NULL;
     return newNode;
 }
 
-struct Graph *create_graph(int V) {
-    struct Graph *graph = (struct Graph *)malloc(sizeof(struct Graph));
+Graph* createGraph(int V) {
+    Graph* graph = (Graph*) malloc(sizeof(Graph));
     graph->V = V;
-    graph->array = (struct adj_list *)malloc(V * sizeof(struct adj_list));
-    for (int i = 0; i < V; ++i)
-        graph->array[i].head = NULL;
+    graph->adjList = (Node**) malloc(V * sizeof(Node*));
+    graph->revAdjList = (Node**) malloc(V * sizeof(Node*));
+    graph->visited = (bool*) malloc(V * sizeof(bool));
+    for (int i = 0; i < V; i++) {
+        graph->adjList[i] = NULL;
+        graph->revAdjList[i] = NULL;
+        graph->visited[i] = false;
+    }
     return graph;
 }
 
-void get_transpose(struct Graph *gr, int src, int dest) {
-    struct adj_list_node *newNode = new_adj_list_node(src);
-    newNode->next = gr->array[dest].head;
-    gr->array[dest].head = newNode;
+void addEdge(Graph* graph, int src, int dest) {
+    Node* newNode = createNode(dest);
+    newNode->next = graph->adjList[src];
+    graph->adjList[src] = newNode;
+
+    Node* revNode = createNode(src);
+    revNode->next = graph->revAdjList[dest];
+    graph->revAdjList[dest] = revNode;
 }
 
-void add_edge(struct Graph *graph, struct Graph *gr, int src, int dest) {
-    struct adj_list_node *newNode = new_adj_list_node(dest);
-    newNode->next = graph->array[src].head;
-    graph->array[src].head = newNode;
-    get_transpose(gr, src, dest);
+void dfs(Graph* graph, int v, int* stack, int* top, bool reverse) {
+    graph->visited[v] = true;
+    Node* adjList = reverse ? graph->revAdjList[v] : graph->adjList[v];
+    for (Node* temp = adjList; temp != NULL; temp = temp->next) {
+        if (!graph->visited[temp->dest]) {
+            dfs(graph, temp->dest, stack, top, reverse);
+        }
+    }
+    if (!reverse) {
+        stack[++(*top)] = v;
+    }
 }
 
-void print_graph(struct Graph *graph1) {
-    for (int v = 0; v < graph1->V; ++v) {
-        struct adj_list_node *temp = graph1->array[v].head;
-        while (temp) {
-            printf("(%d -> %d)\t", v, temp->dest);
-            temp = temp->next;
+void printSCC(Graph* graph, int v) {
+    graph->visited[v] = true;
+    printf("%d ", v+1);
+    for (Node* temp = graph->revAdjList[v]; temp != NULL; temp = temp->next) {
+        if (!graph->visited[temp->dest]) {
+            printSCC(graph, temp->dest);
         }
     }
 }
 
-int *stack, top;
+void findSCCs(Graph* graph) {
+    int* stack = (int*) malloc(graph->V * sizeof(int));
+    int top = -1;
 
-void push(int x) {
-    stack[++top] = x;
-}
-
-int pop() {
-    return stack[top--];
-}
-
-void set_fill_order(struct Graph *graph, int v, bool visited[], int *stack) {
-    visited[v] = true;
-    struct adj_list_node *temp = graph->array[v].head;
-    while (temp) {
-        if (!visited[temp->dest]) {
-            set_fill_order(graph, temp->dest, visited, stack);
-        }
-        temp = temp->next;
-    }
-    push(v);
-}
-
-void dfs_recursive(struct Graph *gr, int v, bool visited[]) {
-    visited[v] = true;
-    printf("%d ", v);
-    struct adj_list_node *temp = gr->array[v].head;
-    while (temp) {
-        if (!visited[temp->dest])
-            dfs_recursive(gr, temp->dest, visited);
-        temp = temp->next;
-    }
-}
-
-void strongly_connected_components(struct Graph *graph, struct Graph *gr, int V) {
-    bool *visited = (bool *)malloc(V * sizeof(bool));
-    for (int i = 0; i < V; i++)
-        visited[i] = false;
-
-    for (int i = 0; i < V; i++) {
-        if (!visited[i]) {
-            set_fill_order(graph, i, visited, stack);
+    // First DFS to fill stack according to finish times
+    for (int i = 0; i < graph->V; i++) {
+        if (!graph->visited[i]) {
+            dfs(graph, i, stack, &top, false);
         }
     }
 
-    for (int i = 0; i < V; i++)
-        visited[i] = false;
+    // Reset visited array for second DFS
+    for (int i = 0; i < graph->V; i++) {
+        graph->visited[i] = false;
+    }
 
-    printf("\nStrongly Connected Components:\n");
+    // Second DFS on transposed graph to find SCCs
+    printf("Strongly Connected Components:\n");
     while (top != -1) {
-        int v = pop();
-        if (!visited[v]) {
-            dfs_recursive(gr, v, visited);
+        int v = stack[top--];
+        if (!graph->visited[v]) {
+            printSCC(graph, v);
             printf("\n");
         }
     }
 
-    free(visited);
+    free(stack);
 }
 
 int main() {
-    int v, max_edges, i, origin, destin;
+    int V, E, src, dest;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &V);
 
-    top = -1;
-    printf("\nEnter the number of vertices: ");
-    scanf("%d", &v);
-    stack = (int *)malloc(v * sizeof(int));
-    struct Graph *graph = create_graph(v);
-    struct Graph *gr = create_graph(v);
-    max_edges = v * (v - 1);
-    for (i = 0; i <= max_edges; i++) {
-        printf("Enter edge %d (0 0 to quit): ", i);
-        if (scanf("%d %d", &origin, &destin) != 2 || origin == 0 && destin == 0)
-            break;
-        if (origin > v || destin > v || origin < 0 || destin < 0) {
-            printf("Invalid edge!\n");
-            i--;
+    Graph* graph = createGraph(V);
+
+    printf("Enter the number of edges: ");
+    scanf("%d", &E);
+
+    for (int i = 0; i < E; i++) {
+        printf("Enter edge %d (source destination): ", i + 1);
+        if (scanf("%d %d", &src, &dest) != 2) {
+            printf("Invalid input! Please enter two integers.\n");
+            i--; // Decrement to retry the input for this edge
         } else {
-            add_edge(graph, gr, origin - 1, destin - 1); // Adjusted for 0-based indexing
+            // Adjust for 0-based indexing
+            if (src >= 1 && src <= V && dest >= 1 && dest <= V) {
+                addEdge(graph, src - 1, dest - 1);
+            } else {
+                printf("Invalid vertex! Please enter vertices between 1 and %d.\n", V);
+                i--; // Decrement to retry the input for this edge
+            }
         }
     }
-    strongly_connected_components(graph, gr, v);
 
-    free(stack);
+    findSCCs(graph);
+
+    for (int i = 0; i < V; i++) {
+        free(graph->adjList[i]);
+        free(graph->revAdjList[i]);
+    }
+    free(graph->adjList);
+    free(graph->revAdjList);
+    free(graph->visited);
+    free(graph);
+
     return 0;
 }
