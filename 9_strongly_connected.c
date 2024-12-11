@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_SIZE 5
+#define MAX_SIZE 100 // Increased size for example
 
-struct Graph *graph;
-struct Graph *gr;
-int *stack, top;
+struct Graph {
+    int V;
+    struct adj_list *array;
+};
 
 struct adj_list_node {
     int dest;
@@ -15,11 +16,6 @@ struct adj_list_node {
 
 struct adj_list {
     struct adj_list_node *head;
-};
-
-struct Graph {
-    int V;
-    struct adj_list *array;
 };
 
 struct adj_list_node *new_adj_list_node(int dest) {
@@ -60,6 +56,8 @@ void print_graph(struct Graph *graph1) {
         }
     }
 }
+
+int *stack, top;
 
 void push(int x) {
     stack[++top] = x;
@@ -130,14 +128,13 @@ int main() {
     max_edges = v * (v - 1);
     for (i = 0; i <= max_edges; i++) {
         printf("Enter edge %d (0 0 to quit): ", i);
-        scanf("%d %d", &origin, &destin);
-        if (origin == 0 && destin == 0)
+        if (scanf("%d %d", &origin, &destin) != 2 || origin == 0 && destin == 0)
             break;
         if (origin > v || destin > v || origin < 0 || destin < 0) {
             printf("Invalid edge!\n");
             i--;
         } else {
-            add_edge(graph, gr, origin, destin);
+            add_edge(graph, gr, origin - 1, destin - 1); // Adjusted for 0-based indexing
         }
     }
     strongly_connected_components(graph, gr, v);
